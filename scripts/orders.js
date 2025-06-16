@@ -80,7 +80,7 @@ export function renderOrders() {
   // Get current user's orders
   const currentUser = JSON.parse(localStorage.getItem('signedUser'));
   if (!currentUser) {
-    window.location.href = 'Log-in Sign-up.html';
+    window.location.href = 'index.html';
     return;
   }
 

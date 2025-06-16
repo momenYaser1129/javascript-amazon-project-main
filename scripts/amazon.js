@@ -3,7 +3,7 @@ import { products } from "../data/products.js";
 import "./toast.js";
 const currentUser = JSON.parse(localStorage.getItem('signedUser'));
 if (!currentUser) {
-  window.location.href = 'Log-in Sign-up.html';
+  window.location.href = 'index.html';
 }
 
 const signedUser = JSON.parse(localStorage.getItem("signedUser"));
@@ -18,7 +18,7 @@ const signOutButton = document.querySelector('.sign-out-button');
 if (signOutButton) {
   signOutButton.addEventListener('click', () => {
     localStorage.removeItem('signedUser');
-    window.location.href = 'Log-in Sign-up.html';
+    window.location.href = 'index.html';
   });
 }
 

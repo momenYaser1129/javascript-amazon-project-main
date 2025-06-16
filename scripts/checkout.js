@@ -5,7 +5,7 @@ import { cart, getCartTotal } from "../data/cart.js";
 // Check if user is logged in
 const currentUser = JSON.parse(localStorage.getItem('signedUser'));
 if (!currentUser) {
-  window.location.href = 'Log-in Sign-up.html';
+  window.location.href = 'index.html';
 }
 
 // Initialize cart display
