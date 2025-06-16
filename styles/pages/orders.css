@@ -25,6 +25,23 @@
   row-gap: 50px;
 }
 
+.empty-orders-message {
+  text-align: center;
+  font-size: 18px;
+  color: rgb(120, 120, 120);
+  padding: 40px 0;
+}
+
+.empty-orders-message a {
+  color: rgb(0, 113, 133);
+  text-decoration: none;
+}
+
+.empty-orders-message a:hover {
+  color: rgb(199, 81, 31);
+  text-decoration: underline;
+}
+
 .order-header {
   background-color: rgb(240, 242, 242);
   border: 1px solid rgb(213, 217, 217);
