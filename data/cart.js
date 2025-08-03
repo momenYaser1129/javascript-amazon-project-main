@@ -1,15 +1,8 @@
-// Fallback toast function
-function toast(message, type = 'info') {
-  console.log(`[${type.toUpperCase()}] ${message}`);
-  // If window.toast is available, use it
-  if (window.toast) {
-    window.toast(message, type);
-  }
-}
-
+// Get current user's cart
 function getUserCart() {
   const currentUser = JSON.parse(localStorage.getItem('signedUser'));
   if (!currentUser) {
+    console.log('No user found in localStorage');
     return [];
   }
   
@@ -17,34 +10,36 @@ function getUserCart() {
   const userCart = localStorage.getItem(cartKey);
   
   if (!userCart) {
+    console.log('No cart found for user:', currentUser.email);
     return [];
   }
   
   try {
     const parsedCart = JSON.parse(userCart);
+    console.log('Retrieved cart:', parsedCart);
     return parsedCart;
   } catch (error) {
+    console.error('Error parsing cart:', error);
     return [];
   }
 }
 
+// Initialize cart from storage
 export let cart = getUserCart();
-
-export function refreshCart() {
-  cart = getUserCart();
-  return cart;
-}
 
 function saveToStorage() {
   const currentUser = JSON.parse(localStorage.getItem('signedUser'));
   if (!currentUser) {
+    console.log('No user found when trying to save cart');
     return;
   }
   
   const cartKey = `cart_${currentUser.email}`;
   try {
     localStorage.setItem(cartKey, JSON.stringify(cart));
+    console.log('Saved cart:', cart);
   } catch (error) {
+    console.error('Error saving cart:', error);
   }
 }
 
@@ -61,6 +56,7 @@ export function addToCart(productId) {
   );
 
   if (!quantitySelector) {
+    console.error('Quantity selector not found for product:', productId);
     return;
   }
 
@@ -92,6 +88,7 @@ export function removeFromCart(productId) {
   toast('Item removed from cart', 'info');
   saveToStorage();
   
+  // Update cart quantity in header
   updateCartQuantityDisplay();
 }
 
@@ -124,6 +121,7 @@ export function updateCartQuantity(productId, newQuantity) {
       toast('Cart quantity updated', 'success');
       saveToStorage();
       
+      // Update cart quantity in header
       updateCartQuantityDisplay();
     } else {
       toast('Quantity must be between 1 and 10', 'error');
@@ -131,6 +129,7 @@ export function updateCartQuantity(productId, newQuantity) {
   }
 }
 
+// Helper function to get cart total
 export function getCartTotal() {
   let total = 0;
   cart.forEach((cartItem) => {
@@ -139,6 +138,7 @@ export function getCartTotal() {
   return total;
 }
 
+// Update cart quantity display in header
 function updateCartQuantityDisplay() {
   const cartQuantityElement = document.querySelector('.js-cart-quantity');
   if (cartQuantityElement) {
@@ -146,4 +146,5 @@ function updateCartQuantityDisplay() {
   }
 }
 
+// Initialize cart quantity display
 updateCartQuantityDisplay();
