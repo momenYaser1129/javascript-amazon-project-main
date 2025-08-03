@@ -4,7 +4,13 @@
     <title>Amazon Project</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-k9UdwDqJfyL7AkY4YfqNvId0G2XQoJtCyW9f53coBqAKFKN1eMl5Lky+wjQ59MlfM2uJqyE4JYqXCEy9aJ/zc==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -12,6 +18,8 @@
     <link rel="stylesheet" href="styles/shared/amazon-header.css" />
     <link rel="stylesheet" href="styles/shared/search-row.css" />
     <link rel="stylesheet" href="styles/pages/amazon.css" />
+    <link rel="stylesheet" href="styles/shared/dark-mode.css" />
+    <link rel="stylesheet" href="styles/shared/animations.css" />
   </head>
 
   <body>
@@ -23,8 +31,9 @@
         </a>
         <div class="toDisplay">
           <span>Hello, <span id="logInUserName"></span></span>
-          <button class="sign-out-button" aria-label="Sign Out">
+          <button class="sign-out-button" aria-label="Sign Out" title="Sign Out">
             <i class="fas fa-sign-out-alt sign-out-icon"></i>
+            <span class="sign-out-text">Sign Out</span>
           </button>
         </div>
       </div>
@@ -63,7 +72,13 @@
       <div class="products-grid js-products-grid"></div>
     </main>
 
+    <!-- Dark Mode Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+      <i class="fas fa-moon"></i>
+    </button>
+
     <script src="scripts/toast.js"></script>
     <script type="module" src="scripts/amazon.js"></script>
+    <script src="scripts/dark-mode.js"></script>
   </body>
 </html>
