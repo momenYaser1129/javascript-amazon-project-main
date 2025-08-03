@@ -86,7 +86,7 @@ export function renderOrders() {
 
   // Get orders from localStorage
   const storedOrders = JSON.parse(localStorage.getItem('orders')) || [];
-  const userOrders = storedOrders.filter(order => order.userId === currentUser.id);
+  const userOrders = storedOrders.filter(order => order.userId === currentUser.email);
 
   // Update cart quantity display
   const cartQuantityElement = document.querySelector('.js-cart-quantity');

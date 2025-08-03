@@ -20,6 +20,12 @@ loadOrdersFromStorage();
 export { orders };
 
 export function addOrder(order) {
+  // Get current user and add userId to the order
+  const currentUser = JSON.parse(localStorage.getItem('signedUser'));
+  if (currentUser) {
+    order.userId = currentUser.email; // Use email as user identifier
+  }
+  
   orders.unshift(order);
   saveToStorage();
 }
