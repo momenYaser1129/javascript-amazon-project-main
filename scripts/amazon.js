@@ -17,20 +17,8 @@ loginNameFun() ;
 const signOutButton = document.querySelector('.sign-out-button');
 if (signOutButton) {
   signOutButton.addEventListener('click', () => {
-    // Clear all user data
     localStorage.removeItem('signedUser');
-    localStorage.removeItem('cart');
-    
-    // Show a brief message before redirecting
-    const userName = document.getElementById('logInUserName');
-    if (userName) {
-      userName.textContent = 'Signing out...';
-    }
-    
-    // Add a small delay for better UX
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 500);
+    window.location.href = 'index.html';
   });
 }
 

@@ -13,6 +13,6 @@ export function loadProducts() {
     console.log("load Products");
     
   });
-  xhr.open("GET",'https://supersimplebackend.dev/products');
+  xhr.open("GET",'http://supersimplebackend.dev/products');
   xhr.send();
 }
