@@ -27,6 +27,12 @@ function getUserCart() {
 // Initialize cart from storage
 export let cart = getUserCart();
 
+// Function to reload cart from storage
+export function reloadCart() {
+  cart = getUserCart();
+  updateCartQuantityDisplay();
+}
+
 function saveToStorage() {
   const currentUser = JSON.parse(localStorage.getItem('signedUser'));
   if (!currentUser) {

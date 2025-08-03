@@ -1,6 +1,6 @@
 import { renderOrderSummary } from "./checkout/orderSummary.js";
 import { renderPaymentSummary } from "./checkout/paymentSummary.js";
-import { cart, getCartTotal } from "../data/cart.js";
+import { cart, getCartTotal, reloadCart } from "../data/cart.js";
 
 // Check if user is logged in
 const currentUser = JSON.parse(localStorage.getItem('signedUser'));
@@ -10,6 +10,9 @@ if (!currentUser) {
 
 // Initialize cart display
 function initializeCart() {
+  // Reload cart to ensure we have the latest data
+  reloadCart();
+  
   const cartQuantityElement = document.querySelector('.js-cart-quantity');
   if (cartQuantityElement) {
     cartQuantityElement.textContent = getCartTotal();
