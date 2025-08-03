@@ -1,21 +1,37 @@
-import { orders } from '../data/orders.js';
+import { refreshOrders } from '../data/orders.js';
 import { getProduct } from '../data/products.js';
 import { addToCart, getCartTotal } from '../data/cart.js';
-import dayjs from "https://unpkg.com/dayjs@1.11.11/esm/index.js";
 
-// Helper function to format currency
 function formatCurrency(cents) {
   return (cents / 100).toFixed(2);
 }
 
-// Helper function to get delivery date
-function getDeliveryDate(orderDate, days = 7) {
-  return orderDate.add(days, 'days').format('MMMM D, YYYY');
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
 }
 
-// Helper function to create product HTML
-function createProductHtml(product, productOrder, orderDate) {
-  const deliveryDate = getDeliveryDate(orderDate);
+function getDeliveryDate(orderDateString, days = 7) {
+  const orderDate = new Date(orderDateString);
+  const deliveryDate = new Date(orderDate.getTime() + days * 24 * 60 * 60 * 1000);
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return deliveryDate.toLocaleDateString('en-US', options);
+}
+
+function calculateOrderTotal(cart) {
+  let total = 0;
+  cart.forEach(cartItem => {
+    const product = getProduct(cartItem.productId);
+    if (product) {
+      total += product.priceCents * cartItem.quantity;
+    }
+  });
+  return total;
+}
+
+function createProductHtml(product, cartItem, orderDateString) {
+  const deliveryDate = getDeliveryDate(orderDateString, 7);
   
   return `
     <div class="product-image-container">
@@ -30,7 +46,7 @@ function createProductHtml(product, productOrder, orderDate) {
         Arriving on: ${deliveryDate}
       </div>
       <div class="product-quantity">
-        Quantity: ${productOrder.quantity}
+        Quantity: ${cartItem.quantity}
       </div>
       <button class="buy-again-button button-primary js-buy-again-button" data-product-id="${product.id}">
         <img class="buy-again-icon" src="images/icons/buy-again.png">
@@ -43,11 +59,18 @@ function createProductHtml(product, productOrder, orderDate) {
   `;
 }
 
-// Helper function to create order HTML
-function createOrderHtml(order, productsHtml) {
-  const orderDate = dayjs(order.orderTime);
-  const formattedDate = orderDate.format('MMMM D, YYYY');
-  const formattedTotal = formatCurrency(order.totalCostCents);
+function createOrderHtml(order) {
+  const orderDate = formatDate(order.orderTime || order.orderDate);
+  const totalCost = calculateOrderTotal(order.cart);
+  const formattedTotal = formatCurrency(totalCost);
+
+  let productsHtml = '';
+  order.cart.forEach(cartItem => {
+    const product = getProduct(cartItem.productId);
+    if (product) {
+      productsHtml += createProductHtml(product, cartItem, order.orderTime || order.orderDate);
+    }
+  });
 
   return `
     <div class="order-container">
@@ -55,7 +78,7 @@ function createOrderHtml(order, productsHtml) {
         <div class="order-header-left-section">
           <div class="order-date">
             <div class="order-header-label">Order Placed:</div>
-            <div>${formattedDate}</div>
+            <div>${orderDate}</div>
           </div>
           <div class="order-total">
             <div class="order-header-label">Total:</div>
@@ -77,18 +100,14 @@ function createOrderHtml(order, productsHtml) {
 }
 
 export function renderOrders() {
-  // Get current user's orders
   const currentUser = JSON.parse(localStorage.getItem('signedUser'));
   if (!currentUser) {
     window.location.href = 'index.html';
     return;
   }
 
-  // Get orders from localStorage
-  const storedOrders = JSON.parse(localStorage.getItem('orders')) || [];
-  const userOrders = storedOrders.filter(order => order.userId === currentUser.id);
+  const userOrders = refreshOrders();
 
-  // Update cart quantity display
   const cartQuantityElement = document.querySelector('.js-cart-quantity');
   if (cartQuantityElement) {
     cartQuantityElement.textContent = getCartTotal();
@@ -106,22 +125,11 @@ export function renderOrders() {
   let ordersHtml = '';
   
   userOrders.forEach((order) => {
-    const orderDate = dayjs(order.orderTime);
-    let productsHtml = '';
-    
-    order.products.forEach((productOrder) => {
-      const product = getProduct(productOrder.productId);
-      if (!product) return; // Skip if product not found
-      
-      productsHtml += createProductHtml(product, productOrder, orderDate);
-    });
-
-    ordersHtml += createOrderHtml(order, productsHtml);
+    ordersHtml += createOrderHtml(order);
   });
 
   document.querySelector('.orders-grid').innerHTML = ordersHtml;
 
-  // Add event listeners for "Buy it again" buttons
   document.querySelectorAll('.js-buy-again-button').forEach(button => {
     button.addEventListener('click', () => {
       const productId = button.dataset.productId;
