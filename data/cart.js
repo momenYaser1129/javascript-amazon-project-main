@@ -1,3 +1,12 @@
+// Fallback toast function
+function toast(message, type = 'info') {
+  console.log(`[${type.toUpperCase()}] ${message}`);
+  // If window.toast is available, use it
+  if (window.toast) {
+    window.toast(message, type);
+  }
+}
+
 function getUserCart() {
   const currentUser = JSON.parse(localStorage.getItem('signedUser'));
   if (!currentUser) {

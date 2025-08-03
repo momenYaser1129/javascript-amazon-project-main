@@ -20,10 +20,18 @@ function getDeliveryDate(orderDateString, days = 7) {
 }
 
 function calculateOrderTotal(cart) {
+  if (!cart || !Array.isArray(cart)) {
+    return 0;
+  }
+  
   let total = 0;
   cart.forEach(cartItem => {
+    if (!cartItem || !cartItem.productId || !cartItem.quantity) {
+      return;
+    }
+    
     const product = getProduct(cartItem.productId);
-    if (product) {
+    if (product && product.priceCents) {
       total += product.priceCents * cartItem.quantity;
     }
   });
@@ -31,22 +39,28 @@ function calculateOrderTotal(cart) {
 }
 
 function createProductHtml(product, cartItem, orderDateString) {
+  console.log('Creating product HTML for:', { product, cartItem });
+  if (!product || !cartItem) {
+    console.error('Invalid product or cart item:', { product, cartItem });
+    return '';
+  }
+  
   const deliveryDate = getDeliveryDate(orderDateString, 7);
   
   return `
     <div class="product-image-container">
-      <img src="${product.image}" alt="${product.name}">
+      <img src="${product.image || ''}" alt="${product.name || 'Product'}" onerror="this.style.display='none'">
     </div>
 
     <div class="product-details">
       <div class="product-name">
-        ${product.name}
+        ${product.name || 'Unknown Product'}
       </div>
       <div class="product-delivery-date">
         Arriving on: ${deliveryDate}
       </div>
       <div class="product-quantity">
-        Quantity: ${cartItem.quantity}
+        Quantity: ${cartItem.quantity || 1}
       </div>
       <button class="buy-again-button button-primary js-buy-again-button" data-product-id="${product.id}">
         <img class="buy-again-icon" src="images/icons/buy-again.png">
@@ -60,15 +74,28 @@ function createProductHtml(product, cartItem, orderDateString) {
 }
 
 function createOrderHtml(order) {
-  const orderDate = formatDate(order.orderTime || order.orderDate);
+  console.log('Creating HTML for order:', order);
+  if (!order || !order.cart || !Array.isArray(order.cart)) {
+    console.error('Invalid order data:', order);
+    return '';
+  }
+
+  const orderDate = formatDate(order.orderTime || order.orderDate || new Date().toISOString());
   const totalCost = calculateOrderTotal(order.cart);
   const formattedTotal = formatCurrency(totalCost);
 
   let productsHtml = '';
   order.cart.forEach(cartItem => {
+    if (!cartItem || !cartItem.productId) {
+      console.error('Invalid cart item:', cartItem);
+      return;
+    }
+    
     const product = getProduct(cartItem.productId);
     if (product) {
-      productsHtml += createProductHtml(product, cartItem, order.orderTime || order.orderDate);
+      productsHtml += createProductHtml(product, cartItem, order.orderTime || order.orderDate || new Date().toISOString());
+    } else {
+      console.error('Product not found for ID:', cartItem.productId);
     }
   });
 
@@ -88,7 +115,7 @@ function createOrderHtml(order) {
 
         <div class="order-header-right-section">
           <div class="order-header-label">Order ID:</div>
-          <div>${order.id}</div>
+          <div>${order.id || 'N/A'}</div>
         </div>
       </div>
 
@@ -106,15 +133,23 @@ export function renderOrders() {
     return;
   }
 
+  console.log('Rendering orders for user:', currentUser.email);
   const userOrders = refreshOrders();
+  console.log('Retrieved orders:', userOrders);
 
   const cartQuantityElement = document.querySelector('.js-cart-quantity');
   if (cartQuantityElement) {
     cartQuantityElement.textContent = getCartTotal();
   }
 
-  if (userOrders.length === 0) {
-    document.querySelector('.orders-grid').innerHTML = `
+  const ordersGridElement = document.querySelector('.orders-grid');
+  if (!ordersGridElement) {
+    console.error('Orders grid element not found');
+    return;
+  }
+
+  if (!userOrders || userOrders.length === 0) {
+    ordersGridElement.innerHTML = `
       <div class="empty-orders-message">
         You have no orders yet. <a href="amazon.html">Start shopping</a>
       </div>
@@ -125,10 +160,14 @@ export function renderOrders() {
   let ordersHtml = '';
   
   userOrders.forEach((order) => {
-    ordersHtml += createOrderHtml(order);
+    try {
+      ordersHtml += createOrderHtml(order);
+    } catch (error) {
+      console.error('Error creating order HTML:', error, order);
+    }
   });
 
-  document.querySelector('.orders-grid').innerHTML = ordersHtml;
+  ordersGridElement.innerHTML = ordersHtml;
 
   document.querySelectorAll('.js-buy-again-button').forEach(button => {
     button.addEventListener('click', () => {
